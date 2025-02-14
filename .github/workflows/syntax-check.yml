@@ -11,4 +11,4 @@ jobs:
       - name: Install ansible
         run: apk add ansible
       - name: Run ansible-playbook --syntax-check
-        run: ansible-playbook playbook/setup-workstation.yml --syntax-check
+        run: ansible-playbook playbook/setup-pnp.yml --syntax-check
