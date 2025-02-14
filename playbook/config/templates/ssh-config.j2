@@ -1,0 +1,14 @@
+Host *github.com
+	IdentityFile /home/{{ username }}/.ssh/github
+
+Host proxmox
+    User root
+    IdentityFile /home/{{ username }}/.ssh/homelab
+
+Host hetzner
+    User root
+    IdentityFile /home/{{ username }}/.ssh/homelab
+
+Host rpi
+    User pi
+    IdentityFile /home/{{ username }}/.ssh/homelab

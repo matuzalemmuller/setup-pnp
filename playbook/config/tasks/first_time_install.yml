@@ -1,0 +1,16 @@
+- import_tasks: copy-initial-setup.yml
+- import_tasks: dark-theme.yml
+- import_tasks: generate-sshkey.yml
+- import_tasks: configure-git.yml
+
+- name: Set workspace count to 2
+  shell: runuser -l "{{ username }}" -c 'export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$UID/bus && xfconf-query -c xfwm4 -p /general/workspace_count -s 2'
+
+- name: First time install complete
+  copy:
+    content: ""
+    dest: /etc/first_time_setup
+    force: false
+    group: root
+    owner: root
+    mode: 0400

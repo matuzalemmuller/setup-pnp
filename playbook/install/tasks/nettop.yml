@@ -1,0 +1,36 @@
+- name: 'nettop: Check if installed'
+  stat: 
+    path: "/usr/local/bin/nettop"
+  register: nettop_binary
+
+- name: 'nettop: Clone repo to /tmp'
+  git:
+    repo: "https://github.com/matuzalemmuller/nettop"
+    dest: "/tmp/nettop"
+    force: yes
+  when: not nettop_binary.stat.exists
+  tags: nettop
+
+- name: 'nettop: Compile repo (make release)'
+  make:
+    chdir: "/tmp/nettop"
+    target: release
+  when: not nettop_binary.stat.exists
+  tags: nettop
+
+- name: 'nettop: Copy executable to /usr/local/bin/nettop'
+  copy:
+    src: "/tmp/nettop/nettop"
+    dest: "/usr/local/bin/nettop"
+    owner: "root"
+    group: "root"
+    mode: '0555'
+  when: not nettop_binary.stat.exists
+  tags: nettop
+
+- name: 'nettop: Delete repo from /tmp'
+  file:
+    path: "/tmp/nettop"
+    state: absent
+  when: not nettop_binary.stat.exists
+  tags: nettop

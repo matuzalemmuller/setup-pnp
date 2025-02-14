@@ -1,0 +1,18 @@
+- Login to:
+    - Dropbox
+    - Joplin
+    - Firefox/Chrome
+    - VSCode/Codeium
+
+- Joplin:
+    - Configure tabs to show above editor: https://github.com/benji300/joplin-note-tabs?tab=readme-ov-file#place-the-panel
+    - Sync with dropbox
+    - Plugins:
+        - Note Tabs
+        - Space Indenter
+
+- Panel:
+    - Battery: Show percentage
+
+- Upload pub SSH key to GitHub:
+    - .ssh/github.pub

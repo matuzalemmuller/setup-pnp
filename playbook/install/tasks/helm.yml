@@ -1,0 +1,42 @@
+- name: 'helm: Check if source is already added to apt sources'
+  stat:
+    path: "/etc/apt/sources.list.d/helm.list"
+  register: helm_apt_source
+
+- name: 'helm: Add gpg key'
+  apt_key:
+    url: https://baltocdn.com/helm/signing.asc
+    keyring: /etc/apt/trusted.gpg.d/helm.gpg
+  when: not helm_apt_source.stat.exists
+  tags: helm
+
+- name: 'helm: Add repo'
+  apt_repository:
+    repo: "deb [arch=arm64 signed-by=/etc/apt/trusted.gpg.d/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main"
+    filename: helm
+    state: present
+  when: not helm_apt_source.stat.exists
+  tags: helm
+
+- name: 'helm: Install package'
+  apt:
+    update_cache: true
+    name: helm
+    state: latest
+  when: not helm_apt_source.stat.exists
+  tags: helm
+
+- name: 'helm: Install helm plugins'
+  become: true
+  become_user: "{{ username }}"
+  shell: helm plugin install "{{ item }}"
+  loop:
+    - https://github.com/databus23/helm-diff
+  when: not helm_apt_source.stat.exists
+  tags: helm
+
+- name: 'helm: Add autocomplete'
+  become: true
+  become_user: "{{ username }}"
+  shell: helm completion bash > /home/{{ username }}/.bash_autocomplete/helm
+  tags: helm

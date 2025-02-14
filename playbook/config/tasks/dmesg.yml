@@ -1,0 +1,6 @@
+- name: 'dmesg: Allow any user to execute'
+  ansible.posix.sysctl:
+    name: kernel.dmesg_restrict
+    value: '0'
+    sysctl_set: true
+  tags: dmesg

@@ -1,0 +1,62 @@
+- name: 'copy-always: Download config files'
+  become: true
+  become_user: "{{ username }}"
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    mode: '0644'
+  loop:
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/autostart/conky.desktop
+      dest: "/home/{{ username }}/.config/autostart/conky.desktop"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/autostart/disable-xfce-beep.desktop
+      dest: "/home/{{ username }}/.config/autostart/disable-xfce-beep.desktop"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/autostart/xfce4-clipman-plugin-autostart.desktop
+      dest: "/home/{{ username }}/.config/autostart/xfce4-clipman-plugin-autostart.desktop"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/gnome-power-manager.desktop
+      dest: "/home/{{ username }}/.local/share/applications/gnome-power-manager.desktop"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/k9s/config.yaml
+      dest: "/home/{{ username }}/.config/k9s/config.yaml"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/k9s/skin-gruvbox-dark.yaml
+      dest: "/home/{{ username }}/.config/k9s/skins/gruvbox-dark.yaml"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/kube/kubectl_aliases.sh
+      dest: "/home/{{ username }}/.bash_autocomplete/kubectl_aliases.sh"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/mimeapps.list
+      dest: "/home/{{ username }}/.config/mimeapps.list"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/vscode/snippets/python.code-snippets
+      dest: "/home/{{ username }}/.config/Code/User/snippets/python.code-snippets"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/vscode/settings.json
+      dest: "/home/{{ username }}/.config/Code/User/settings.json"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/vscode/keybindings.json
+      dest: "/home/{{ username }}/.config/Code/User/keybindings.json"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/terminator
+      dest: "/home/{{ username }}/.config/terminator/config"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/tmux.conf
+      dest: "/home/{{ username }}/.tmux.conf"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/vimrc
+      dest: "/home/{{ username }}/.vimrc"
+
+- name: 'copy-always: Copy config files (templates)'
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0644'
+  loop:
+    - src: thunar-bookmarks.j2
+      dest: "/home/{{ username }}/.config/gtk-3.0/bookmarks"
+    - src: xfce4-keyboard-shortcuts.xml.j2
+      dest: "/home/{{ username }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml"
+
+- name: 'copy-always: Copy config files (root / templates)'
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  loop:
+    - src: sudoers/iotop
+      dest: "/etc/sudoers.d/iotop"
+    - src: sudoers/nettop
+      dest: "/etc/sudoers.d/nettop"

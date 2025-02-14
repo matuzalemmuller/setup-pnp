@@ -1,0 +1,24 @@
+- name: 'fzf: Check if installed'
+  stat:
+    path: "/opt/fzf/bin/fzf"
+  register: fzf_binary
+
+- name: 'fzf: Clone repo'
+  git:
+    repo: "https://github.com/matuzalemmuller/fzf"
+    dest: "/opt/fzf"
+    force: yes
+  when: not fzf_binary.stat.exists
+  tags: fzf
+
+- name: 'fzf: Install and configure (user: root)'
+  shell: /opt/fzf/install --key-bindings --completion --update-rc
+  when: not fzf_binary.stat.exists
+  tags: fzf
+
+- name: 'fzf: Install and configure (user: {{ username }})'
+  become: true
+  become_user: "{{ username }}"
+  shell: /opt/fzf/install --key-bindings --completion --update-rc
+  when: not fzf_binary.stat.exists
+  tags: fzf

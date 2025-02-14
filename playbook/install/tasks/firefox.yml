@@ -1,0 +1,27 @@
+- name: 'firefox: Check if source is already added to apt sources'
+  stat:
+    path: "/etc/apt/sources.list.d/mozilla.list"
+  register: mozilla_apt_source
+
+- name: 'firefox: Add gpg key'
+  apt_key:
+    url: https://packages.mozilla.org/apt/repo-signing-key.gpg
+    keyring: /etc/apt/trusted.gpg.d/firefox.gpg
+  when: not mozilla_apt_source.stat.exists
+  tags: firefox
+
+- name: 'firefox: Add repo'
+  apt_repository:
+    repo: "deb https://packages.mozilla.org/apt mozilla main"
+    filename: mozilla
+    state: present
+  when: not mozilla_apt_source.stat.exists
+  tags: firefox
+
+- name: 'firefox: Install package'
+  apt:
+    update_cache: true
+    name: firefox-nightly
+    state: latest
+  when: not mozilla_apt_source.stat.exists
+  tags: firefox

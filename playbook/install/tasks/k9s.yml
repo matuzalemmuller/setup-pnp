@@ -1,0 +1,19 @@
+- name: 'k9s: Unarchive release tarball to /tmp'
+  unarchive:
+    src: https://github.com/derailed/k9s/releases/latest/download/k9s_linux_arm64.tar.gz
+    dest: "/tmp"
+    copy: false
+  tags: k9s
+
+- name: 'k9s: Copy executable to /usr/local/bin/k9s'
+  copy:
+    src: "/tmp/k9s"
+    dest: "/usr/local/bin/k9s"
+    mode: '755'
+  tags: k9s
+
+- name: 'k9s: Cleanup release from /tmp'
+  file:
+    path: "/tmp/k9s"
+    state: absent
+  tags: k9s

@@ -1,0 +1,53 @@
+- name: 'kubectl: Check if source is already added to apt sources'
+  stat:
+    path: "/etc/apt/sources.list.d/kubectl.list"
+  register: kubectl_apt_source
+
+- name: 'kubectl: Get latest version'
+  uri:
+    url: https://dl.k8s.io/release/stable.txt
+    return_content: yes
+  register: k8s_version_with_minor
+  when: not kubectl_apt_source.stat.exists
+  tags: kubectl
+
+- name: 'kubectl: Print latest version'
+  debug:
+    var: (k8s_version_with_minor).content
+  when: not kubectl_apt_source.stat.exists
+  tags: kubectl
+
+- name: 'kubectl: Remove minor revision from version variable'
+  shell: echo {{ (k8s_version_with_minor).content }} | awk -F'.' '{ print $1"."$2 }' 
+  register: k8s_version
+  when: not kubectl_apt_source.stat.exists
+  tags: kubectl
+
+- name: 'kubectl: Add gpg key'
+  apt_key:
+    url: 'https://pkgs.k8s.io/core:/stable:/{{ (k8s_version).stdout }}/deb/Release.key'
+    keyring: /etc/apt/trusted.gpg.d/kubectl.gpg
+  when: not kubectl_apt_source.stat.exists
+  tags: kubectl
+
+- name: 'kubectl: Add repo'
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/trusted.gpg.d/kubectl.gpg] https://pkgs.k8s.io/core:/stable:/{{ (k8s_version).stdout }}/deb/ /"
+    filename: kubectl
+    state: present
+  when: not kubectl_apt_source.stat.exists
+  tags: kubectl
+
+- name: 'kubectl: Install package'
+  apt:
+    update_cache: true
+    name: kubectl
+    state: latest
+  when: not kubectl_apt_source.stat.exists
+  tags: kubectl
+
+- name: 'kubectl: Add autocomplete'
+  become: true
+  become_user: "{{ username }}"
+  shell: kubectl completion bash > /home/{{ username }}/.bash_autocomplete/kubectl
+  tags: kubectl

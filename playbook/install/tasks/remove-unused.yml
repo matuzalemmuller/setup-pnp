@@ -1,0 +1,14 @@
+- name: 'apt: Remove unused packages'
+  apt:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+      - exfalso
+      # - firefox-esr
+      - parole
+      - xterm
+
+- name: 'apt: Autoremove packages that are no longer required'
+  apt:
+    autoremove: true

@@ -1,0 +1,173 @@
+- name: 'bashrc: Disable console freeze'
+  become: true
+  become_user: "{{ username }}"
+  blockinfile:
+    marker: "## {mark} Disable console freeze"
+    path: "/home/{{ username }}/.bashrc"
+    insertafter: "EOF"
+    block: |
+      # disable tmux freeze + ssh fix: https://stackoverflow.com/questions/24623021/getting-stty-standard-input-inappropriate-ioctl-for-device-when-using-scp-thro
+      [[ $- == *i* ]] && /usr/bin/stty -ixon
+
+- name: 'bashrc: Add /usr/sbin to PATH'
+  become: true
+  become_user: "{{ username }}"
+  blockinfile:
+    marker: "## {mark} Add /usr/sbin to PATH"
+    path: "/home/{{ username }}/.bashrc"
+    insertafter: "EOF"
+    block: |
+      export PATH="$PATH:/usr/sbin"
+
+- name: 'bashrc: Add ls aliases'
+  become: true
+  become_user: "{{ username }}"
+  blockinfile:
+    marker: "## {mark} Add ls aliases"
+    path: "/home/{{ username }}/.bashrc"
+    insertafter: "EOF"
+    block: |
+      alias la='ls -la'
+      alias ll='ls -lh'
+
+- name: 'bashrc: Add various aliases'
+  become: true
+  become_user: "{{ username }}"
+  blockinfile:
+    marker: "## {mark} Add various aliases"
+    path: "/home/{{ username }}/.bashrc"
+    insertafter: "EOF"
+    block: |
+      alias cpv='rsync -ah --info=progress2'
+      alias grep='grep --color=auto'
+      alias nettop='sudo /usr/local/bin/nettop'
+      alias virsh='sudo virsh'
+      alias cnf='command-not-found'
+      alias usb-transfer-status='watch grep -e Dirty: -e Writeback: /proc/meminfo'
+      alias proxmox='ssh root@10.0.0.200'
+      alias hetzner='ssh root@10.8.0.2'
+      alias serve_folder='python3 -m http.server 8080 --bind 0.0.0.0 --directory '
+      alias hssh='ssh -i ~/.ssh/homelab -o StrictHostKeyChecking=no '
+      alias watch='watch ' # allows using watch with aliases - https://unix.stackexchange.com/a/25329
+      alias bashrc='vim /home/{{ username }}/.bashrc'
+
+- name: 'bashrc: Add terraform auto-completion'
+  become: true
+  become_user: "{{ username }}"
+  blockinfile:
+    marker: "## {mark} Add terraform autocomplete"
+    path: "/home/{{ username }}/.bashrc"
+    insertafter: "EOF"
+    block: |
+      complete -C /usr/bin/terraform terraform
+
+- name: 'bashrc: Source autocompletion'
+  become: true
+  become_user: "{{ username }}"
+  blockinfile:
+    marker: "## {mark} bashrc: Source autocompletion"
+    path: "/home/{{ username }}/.bashrc"
+    insertafter: "EOF"
+    block: |
+      for fl in `find /home/matuzalem/.bash_autocomplete/*`; do source $fl; done
+
+- name: 'bashrc: Alias k to kubecolor'
+  become: true
+  become_user: "{{ username }}"
+  blockinfile:
+    marker: "## {mark} Add kubectl autocomplete"
+    path: "/home/{{ username }}/.bashrc"
+    insertafter: "EOF"
+    block: |
+      alias k=kubecolor
+      complete -o default -F __start_kubectl k
+
+- name: 'bashrc: Increase default bash history (HISTFILESIZE)'
+  lineinfile:
+    path: "/home/{{ username }}/.bashrc"
+    regexp: '^HISTFILESIZE='
+    line: 'HISTFILESIZE=10000'
+
+- name: 'bashrc: Use ydiff for git diff and difftool for individual files'
+  become: true
+  become_user: "{{ username }}"
+  blockinfile:
+    marker: "## {mark} Replace git diff"
+    path: "/home/{{ username }}/.bashrc"
+    insertafter: "EOF"
+    block: |
+      git() {
+        if [ "$1" == "diff" ];  then
+            if [ "$#" -eq 1 ]; then
+                /opt/ydiff/ydiff.py
+            else
+                /usr/bin/git difftool --tool=vimdiff -y $2
+            fi
+        else
+            /usr/bin/git "$@"
+        fi
+      }
+
+- name: 'bashrc: Add micromamba prefix'
+  become: true
+  become_user: "{{ username }}"
+  blockinfile:
+    marker: "## {mark} Micromamba prefix"
+    path: "/home/{{ username }}/.bashrc"
+    insertafter: "EOF"
+    block: |
+      # >>> mamba initialize >>>
+      # !! Contents within this block are managed by 'micromamba shell init' !!
+      export MAMBA_EXE='/opt/micromamba/bin/micromamba';
+      export MAMBA_ROOT_PREFIX='/home/matuzalem/micromamba';
+      __mamba_setup="$("$MAMBA_EXE" shell hook --shell bash --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
+      if [ $? -eq 0 ]; then
+          eval "$__mamba_setup"
+      else
+          alias micromamba="$MAMBA_EXE"  # Fallback on help from micromamba activate
+      fi
+      unset __mamba_setup
+      # <<< mamba initialize <<<
+
+- name: 'bashrc: k8s cheat sheet/helpers'
+  become: true
+  become_user: "{{ username }}"
+  blockinfile:
+    marker: "## {mark} k8s cheat sheet"
+    path: "/home/{{ username }}/.bashrc"
+    insertafter: "EOF"
+    block: |
+      function kc() {
+        printf "# get all pods running in a node\n"
+        printf "k get pod -A -o wide --field-selector spec.nodeName=NODE_NAME\n\n"
+        # Define colors using ANSI escape codes
+        RED='\033[0;31m'
+        GREEN='\033[0;32m'
+        YELLOW='\033[0;33m'
+        BLUE='\033[0;34m'
+        NC='\033[0m' # No Color (reset to default)
+        
+        # Print the table headers with colors
+        echo -e "base\t\tsystem\t\toperation\tresource\tflags"
+        echo -e "---------------------------------------"
+        
+        # Print table rows with data
+        echo -e "\t\t\t\t\t\t${RED}po${NC}ds\t\t${RED}oyaml"
+        echo -e "\t\t\t\t${RED}g${NC}et\t\t${RED}dep${NC}loyment\t${RED}ojson"
+        echo -e "\t\t\t\t${RED}d${NC}escribe\t${RED}sec${NC}ret\t\t${RED}owide"
+        echo -e "\t\t\t\t${RED}rm${NC}:delete\t${RED}ing${NC}ress\t\t${RED}all"
+        echo -e "${RED}k${NC}ubectl\t\t-n=kube-${RED}sys${NC}tem\t${RED}lo${NC}gs\t\t${RED}no${NC}de\t\t${RED}w"
+        echo -e "\t\t\t\t${RED}ex${NC}ec\t\t${RED}svc${NC}\t\t${RED}f"
+        echo -e "\t\t\t\t${RED}a${NC}pply\t\t${RED}ns${NC}\t\t${RED}l"
+        echo -e "\t\t\t\t\t\t${RED}cm${NC}ds\t\t"
+
+        /home/{{ username }}/.bash_autocomplete/.kubectl_aliases.sh
+      }
+      function kns() {
+        if [[ -z "$1" ]]; then
+          kubectl config view | grep namespace
+          kubectl get ns
+        else
+          kubectl config set-context --current --namespace "$1"
+        fi
+      }

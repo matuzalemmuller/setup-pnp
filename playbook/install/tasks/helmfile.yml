@@ -1,0 +1,38 @@
+- name: 'helmfile: Get release info'
+  uri:
+    url: https://api.github.com/repos/helmfile/helmfile/releases/latest
+    return_content: yes
+  register: helmfile_latest_release
+  tags: helmfile
+
+- name: 'helmfile: Convert release from raw to ansible fact'
+  set_fact:
+    helmfile_latest_release_json: "{{ helmfile_latest_release.content | from_json }}"
+  tags: helmfile
+
+- name: 'helmfile: Download release to /tmp'
+  unarchive:
+    # helmfile_latest_release_json.tag_name[1:] -- ignore "v" in release name
+    src: https://github.com/helmfile/helmfile/releases/latest/download/helmfile_{{ helmfile_latest_release_json.tag_name[1:] }}_linux_arm64.tar.gz
+    dest: "/tmp"
+    copy: false
+  tags: helmfile
+
+- name: 'helmfile: Copy executable to /usr/local/bin/helmfile'
+  copy:
+    src: "/tmp/helmfile"
+    dest: "/usr/local/bin/helmfile"
+    mode: '755'
+  tags: helmfile
+
+- name: 'helmfile: Cleanup release from /tmp'
+  file:
+    path: "/tmp/helmfile"
+    state: absent
+  tags: helmfile
+
+- name: 'helmfile: Add autocomplete'
+  become: true
+  become_user: "{{ username }}"
+  shell: helmfile completion bash > /home/{{ username }}/.bash_autocomplete/helmfile
+  tags: helmfile

@@ -1,0 +1,53 @@
+- name: 'docker: Check if source is already added to apt sources'
+  stat:
+    path: "/etc/apt/sources.list.d/docker.list"
+  register: docker_apt_source
+
+- name: 'docker: Add gpg key'
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    keyring: /etc/apt/trusted.gpg.d/docker.gpg
+  when: not docker_apt_source.stat.exists
+  tags: docker
+
+- name: 'docker: Add repo'
+  apt_repository:
+    repo: "deb [arch=arm64 signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/debian   {{ ansible_lsb.codename }} stable"
+    filename: docker
+    state: present
+  when: not docker_apt_source.stat.exists
+  tags: docker
+
+- name: 'docker: Install packages'
+  apt:
+    update_cache: true
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+  when: not docker_apt_source.stat.exists
+  tags: docker
+
+- name: 'docker: Add user "{{ username }}" to docker group'
+  user:
+    name: "{{ username }}"
+    groups: docker
+    append: true
+  when: not docker_apt_source.stat.exists
+  tags: docker
+
+- name: 'docker: Disable service'
+  service:
+    name: "{{ item }}"
+    enabled: false
+    state: stopped
+  when: not docker_apt_source.stat.exists
+  loop:
+    - "docker"
+    - "containerd"
+  tags: docker

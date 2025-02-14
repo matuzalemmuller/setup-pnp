@@ -1,0 +1,42 @@
+- name: 'preinstall: Create folders'
+  become: true
+  become_user: "{{ username }}"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '755'
+  loop:
+    - '/home/{{ username }}/.bash_autocomplete'
+    - '/home/{{ username }}/.kube'
+    - '/home/{{ username }}/dev'
+    - '/home/{{ username }}/Programs/shortcuts'
+    - '/home/{{ username }}/.local/share/applications'
+    - '/home/{{ username }}/.ssh'
+    - '/home/{{ username }}/.config/autostart'
+    - '/home/{{ username }}/.config/gtk-3.0'
+    - '/home/{{ username }}/.config/k9s/skins'
+    - '/home/{{ username }}/.config/terminator'
+
+- name: 'preinstall: Create folders (root)'
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: 'root'
+    group: 'root'
+    mode: '755'
+  loop:
+    - '/opt/joplin'
+    - '/opt/micromamba'
+    - '/opt/ydiff'
+
+- name: 'preinstall: Delete unused default folders'
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - '/home/{{ username }}/Music'
+    - '/home/{{ username }}/Public'
+    - '/home/{{ username }}/Templates'
+    - '/home/{{ username }}/Videos'

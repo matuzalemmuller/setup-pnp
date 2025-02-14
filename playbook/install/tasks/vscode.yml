@@ -1,0 +1,10 @@
+- name: 'vscode: Check if source is already added to apt sources'
+  stat:
+    path: "/etc/apt/sources.list.d/vscode.list"
+  register: vscode_apt_source
+
+- name: 'vscode: Install from web .deb'
+  apt:
+    deb: https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-arm64
+  when: not vscode_apt_source.stat.exists
+  tags: vscode

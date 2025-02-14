@@ -1,0 +1,41 @@
+- name: 'kubecolor: Get release info'
+  uri:
+    url: https://api.github.com/repos/kubecolor/kubecolor/releases/latest
+    return_content: yes
+  register: kubecolor_latest_release
+  tags: kubecolor
+
+- name: 'kubecolor: Convert release from raw to ansible fact'
+  set_fact:
+    kubecolor_latest_release_json: "{{ kubecolor_latest_release.content | from_json }}"
+  tags: kubecolor
+
+- name: 'kubecolor: Download release to /tmp'
+  unarchive:
+    # kubecolor_latest_release_json.tag_name[1:] -- ignore "v" in release name
+    src: https://github.com/kubecolor/kubecolor/releases/latest/download/kubecolor_{{ kubecolor_latest_release_json.tag_name[1:] }}_linux_arm64.tar.gz
+    dest: "/tmp"
+    copy: false
+  tags: kubecolor
+
+- name: 'kubecolor: Copy executable to /usr/local/bin/kubecolor'
+  copy:
+    src: "/tmp/kubecolor"
+    dest: "/usr/local/bin/kubecolor"
+    mode: '755'
+  tags: kubecolor
+
+- name: 'kubecolor: Cleanup release from /tmp'
+  file:
+    path: "/tmp/kubecolor"
+    state: absent
+  tags: kubecolor
+
+- name: 'kubecolor: Add symlink for "k"'
+  ansible.builtin.file:
+    src: /usr/local/bin/kubecolor
+    dest: /usr/local/bin/k
+    owner: root
+    group: root
+    state: link
+  tags: kubecolor

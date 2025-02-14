@@ -1,0 +1,6 @@
+- name: 'micromamba: Download and extract tarball'
+  unarchive:
+    src: "https://micro.mamba.pm/api/micromamba/linux-aarch64/latest"
+    dest: "/opt/micromamba"
+    copy: false
+  tags: micromamba

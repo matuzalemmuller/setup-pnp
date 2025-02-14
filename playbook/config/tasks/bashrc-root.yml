@@ -1,0 +1,27 @@
+- name: 'bashrc-root: Change default editor to vim'
+  blockinfile:
+    marker: "## {mark} Change default editor"
+    path: "/root/.bashrc"
+    insertafter: "EOF"
+    block: |
+      export VISUAL=vim
+      export EDITOR="$VISUAL"
+
+- name: 'bashrc-root: Add ls aliases'
+  blockinfile:
+    marker: "## {mark} Add ls aliases"
+    path: "/root/.bashrc"
+    insertafter: "EOF"
+    block: |
+      alias la='ls -la'
+      alias ll='ls -lh'
+      alias cnf='command-not-found'
+
+- name: 'bashrc-root: Change PS1 color'
+  blockinfile:
+    marker: "## {mark} Change PS1 color"
+    path: "/root/.bashrc"
+    insertafter: "EOF"
+    block: |
+      PS1="\[\e[01;31m\]$PS1\[\e[00m\]"
+

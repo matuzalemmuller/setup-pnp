@@ -1,0 +1,12 @@
+- name: 'ydiff: Check if installed'
+  stat:
+    path: "/opt/ydiff/ydiff.py"
+  register: ydiff_script
+
+- name: 'ydiff: Download executable'
+  get_url:
+    url: https://raw.githubusercontent.com/matuzalemmuller/ydiff/master/ydiff.py
+    dest: "/opt/ydiff/ydiff.py"
+    mode: '755'
+  when: not ydiff_script.stat.exists
+  tags: ydiff

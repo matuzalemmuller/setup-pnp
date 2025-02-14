@@ -1,0 +1,16 @@
+- name: 'vscode: Install extensions'
+  become: true
+  become_user: "{{ username }}"
+  shell: code --install-extension "{{ item }}"
+  loop:
+    - alefragnani.project-manager
+    - GitHub.copilot
+    - HashiCorp.terraform
+    - ms-azuretools.vscode-docker
+    - ms-kubernetes-tools.vscode-kubernetes-tools
+    - ms-python.black-formatter
+    - ms-python.python
+    - oderwat.indent-rainbow
+    - redhat.vscode-yaml
+    - rangav.vscode-thunder-client
+  tags: vscode

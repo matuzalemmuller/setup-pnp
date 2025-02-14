@@ -1,0 +1,18 @@
+- name: 'git: Configure'
+  become: true
+  become_user: "{{ username }}"
+  git_config:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    scope: global
+  loop:
+    - name: user.name
+      value: "Matuzalem Muller"
+    - name: user.email
+      value: "30294881+matuzalemmuller@users.noreply.github.com"
+    - name: gpg.format
+      value: "ssh"
+    - name: user.signingkey
+      value: "/home/{{ username }}/.ssh/github.pub"
+    - name: init.defaultBranch
+      value: "main"

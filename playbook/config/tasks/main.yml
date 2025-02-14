@@ -1,0 +1,14 @@
+- name: Check if this is the first time setting up the computer
+  stat:
+    path: "/etc/first_time_setup"
+  register: first_time_setup
+
+- import_tasks: first_time_install.yml
+  when: not first_time_setup.stat.exists
+- import_tasks: copy-always.yml
+- import_tasks: dmesg.yml
+- import_tasks: bashrc.yml
+- import_tasks: bashrc-root.yml
+- import_tasks: vscode.yml
+# This needs to be run last since it puts the network in a bad state
+- import_tasks: resolv-conf.yaml

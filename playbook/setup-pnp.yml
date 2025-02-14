@@ -1,0 +1,10 @@
+---
+
+- hosts: all
+  vars_prompt:
+    - name: username
+      prompt: "Please provide the username"
+      private: false
+  roles:
+    - role: install
+    - role: config

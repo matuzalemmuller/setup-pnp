@@ -1,0 +1,27 @@
+- name: 'terraform: Check if source is already added to apt sources'
+  stat:
+    path: "/etc/apt/sources.list.d/hashicorp.list"
+  register: hashicorp_apt_source
+
+- name: 'terraform: Add gpg key'
+  apt_key:
+    url: https://apt.releases.hashicorp.com/gpg
+    keyring: /etc/apt/trusted.gpg.d/hashicorp.gpg
+  when: not hashicorp_apt_source.stat.exists
+  tags: terraform
+
+- name: 'terraform: Add repo'
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/trusted.gpg.d/hashicorp.gpg] https://apt.releases.hashicorp.com {{ ansible_lsb.codename }} main"
+    filename: hashicorp
+    state: present
+  when: not hashicorp_apt_source.stat.exists
+  tags: terraform
+
+- name: 'terraform: Install package'
+  apt:
+    update_cache: true
+    name: terraform
+    state: latest
+  when: not hashicorp_apt_source.stat.exists
+  tags: terraform

@@ -1,0 +1,71 @@
+- name: 'apt: Upgrade all packages'
+  apt:
+    upgrade: yes
+    update_cache: yes
+  register: apt_upgrade
+
+- name: 'apt: Install packages (this may take a while)'
+  apt:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+      - apt-transport-https
+      - blueman
+      - command-not-found
+      - conky
+      - curl
+      - dbus-x11
+      - dconf-cli
+      - dconf-editor
+      - debhelper
+      - drawing
+      - evince
+      - galculator
+      - gdebi
+      - git
+      - gnome-disk-utility
+      - gnome-power-manager
+      - gnome-system-monitor
+      - gnome-system-tools
+      - gnupg
+      - gparted
+      - gufw
+      - htop
+      - ipython3
+      - iotop
+      - jq
+      - libncurses5-dev
+      - libpcap-dev
+      - linux-perf
+      - lrzip
+      - menulibre
+      - net-tools
+      - original-awk
+      - pipx
+      - psmisc
+      - python3-pip
+      - python3-setuptools
+      - python3-virtualenv
+      - qimgv
+      - sshpass
+      - strace
+      - stress
+      - tcpdump
+      - terminator
+      - tmux
+      - tree
+      - ufw
+      - unrar-free
+      - vim
+      - vlc
+      - wireguard
+      - wireshark
+      - xfce4-whiskermenu-plugin
+      - xsel
+      - zip
+  register: apt_install
+
+- name: 'command-not-found: Update packages'
+  shell: update-command-not-found
+  when: apt_upgrade.changed or apt_install.changed

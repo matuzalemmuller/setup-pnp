@@ -1,0 +1,80 @@
+- name: 'copy-initial-setup: Killall xfce4-panel'
+  shell: killall xfce4-panel
+
+- name: 'copy-initial-setup: Remove panel folder'
+  file:
+    state: absent
+    path: "/home/{{ username }}/.config/xfce4/panel"
+
+- name: 'copy-initial-setup: Download config files'
+  become: true
+  become_user: "{{ username }}"
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    mode: '0644'
+  loop:
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/inputrc
+      dest: "/home/{{ username }}/.inputrc"
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/terminator-default-terminal.rc
+      dest: "/home/{{ username }}/.config/xfce4/helpers.rc"
+
+- name: 'copy-initial-setup: Copy config files'
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0644'
+  loop:
+    - src: panel
+      dest: "/home/{{ username }}/.config/xfce4"
+    - src: TODO.txt
+      dest: "/home/{{ username }}/Desktop"
+    - src: xfce4-panel.xml
+      dest: "/home/{{ username }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+
+- name: 'copy-initial-setup: Copy config files (templates)'
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0644'
+  loop:
+    - src: ssh-config.j2
+      dest: "/home/{{ username }}/.ssh/config"
+
+- name: 'copy-initial-setup: Copy scripts (templates)'
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0755'
+  loop:
+    - src: screenshot.sh.j2
+      dest: "/home/{{ username }}/Programs/shortcuts/screenshot.sh"
+
+- name: 'copy-initial-setup: Download config files (root)'
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    mode: '0644'
+  loop:
+    - src: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/conky.conf
+      dest: /etc/conky/conky.conf
+
+- name: 'copy-initial-setup: Copy config files (root)'
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+    backup: true
+  loop:
+    - src: logind.conf
+      dest: /etc/systemd/logind.conf
+    - src: xfce4-panel.xml
+      dest: /etc/xdg/xfce4/panel/default.xml

@@ -1,0 +1,33 @@
+- name: 'vim-gitgutter: Check if installed'
+  stat: 
+    path: "/home/{{ username }}/.vim/pack/airblade/start/vim-gitgutter/plugin/gitgutter.vim"
+  register: vim_gitgutter_plugin
+
+- name: 'vim-gitgutter: Create folder'
+  become: true
+  become_user: "{{ username }}"
+  file:
+    path: '/home/{{ username }}/.vim/pack/airblade/start'
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '755'
+  when: not vim_gitgutter_plugin.stat.exists
+  tags: vim
+
+- name: 'vim-gitgutter: Clone repo'
+  become: true
+  become_user: "{{ username }}"
+  git:
+    repo: "https://github.com/matuzalemmuller/vim-gitgutter.git"
+    dest: "/home/{{ username }}/.vim/pack/airblade/start/vim-gitgutter"
+    force: yes
+  when: not vim_gitgutter_plugin.stat.exists
+  tags: vim
+
+- name: 'vim-gitgutter: Add integration to vim'
+  become: true
+  become_user: "{{ username }}"
+  shell: /usr/bin/vim -u NONE -c "helptags vim-gitgutter/doc" -c q
+  when: not vim_gitgutter_plugin.stat.exists
+  tags: vim

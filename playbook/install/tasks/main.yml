@@ -1,0 +1,25 @@
+- import_tasks: create-folders.yml
+- import_tasks: apt.yml
+- import_tasks: docker.yml
+- import_tasks: firefox.yml
+- import_tasks: fzf.yml
+- import_tasks: helm.yml
+- import_tasks: helmfile.yml
+- import_tasks: k9s.yml
+- import_tasks: kubecolor.yml
+- import_tasks: kubectl.yml
+- import_tasks: micromamba.yml
+- import_tasks: nettop.yml
+- import_tasks: terraform.yml
+- import_tasks: tgpt.yml
+- import_tasks: vim-gitgutter.yml
+- import_tasks: vscode.yml
+- import_tasks: ydiff.yml
+- import_tasks: remove-unused.yml
+
+- name: Get packages installed/upgraded today
+  shell: grep -E "^$(date +%Y-%m-%d).+ (install|upgrade) " /var/log/dpkg.log | cut -d " " -f 3-5
+  register: result
+
+- name: Show packages installed/upgraded today
+  debug: msg="{{ result.stdout_lines }}"
