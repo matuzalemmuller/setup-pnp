@@ -62,7 +62,7 @@
     dest: "{{ item.dest }}"
     mode: '0644'
   loop:
-    - src: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/conky.conf
+    - url: https://raw.githubusercontent.com/matuzalemmuller/setup-workstation/refs/heads/main/playbook/config/files/conky.conf
       dest: /etc/conky/conky.conf
 
 - name: 'copy-initial-setup: Copy config files (root)'

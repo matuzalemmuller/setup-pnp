@@ -15,6 +15,7 @@
     - '/home/{{ username }}/.local/share/applications'
     - '/home/{{ username }}/.ssh'
     - '/home/{{ username }}/.config/autostart'
+    - '/home/{{ username }}/.config/Code/User/snippets'
     - '/home/{{ username }}/.config/gtk-3.0'
     - '/home/{{ username }}/.config/k9s/skins'
     - '/home/{{ username }}/.config/terminator'

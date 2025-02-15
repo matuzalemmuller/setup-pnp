@@ -26,7 +26,7 @@ if ! sudo_exec ls /root &>/dev/null; then
 fi
 
 # Install wifi firmware, then reboot
-if [[ ! $(dpkg -l | grep firmware-brcm80211) ]]; then
+if [[ ! $(dpkg -l | grep firmware-brcm80211 | grep rpt3) ]]; then
     dpkg -i firmware/firmware-brcm80211_20230625-2+rpt3_all.deb
     reboot now
 fi
@@ -38,7 +38,6 @@ if [[ ! -f /etc/first_time_setup ]]; then
     echo "deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware" | sudo tee -a /etc/apt/sources.list
     echo "deb http://deb.debian.org/debian bookworm-updates main contrib non-free" | sudo tee -a /etc/apt/sources.list
     echo "deb http://security.debian.org/debian-security bookworm-security main contrib non-free" | sudo tee -a /etc/apt/sources.list
-    sudo_exec touch /etc/first_time_setup
 fi
 
 # Install ansible if not already installed
