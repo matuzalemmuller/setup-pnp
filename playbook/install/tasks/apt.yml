@@ -35,6 +35,7 @@
       - ipython3
       - iotop
       - jq
+      - kdeconnect
       - libncurses5-dev
       - libpcap-dev
       - linux-perf
