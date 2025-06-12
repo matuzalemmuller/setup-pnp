@@ -27,7 +27,7 @@ fi
 
 # Install wifi firmware, then reboot
 if [[ ! $(dpkg -l | grep firmware-brcm80211 | grep rpt3) ]]; then
-    dpkg -i firmware/firmware-brcm80211_20230625-2+rpt3_all.deb
+    sudo_exec dpkg -i firmware/firmware-brcm80211_20230625-2+rpt3_all.deb
     reboot now
 fi
 
